@@ -4,6 +4,24 @@ import { motion } from 'framer-motion';
 import Particles from "react-tsparticles";
 import { loadSlim } from "tsparticles-slim";
 
+// Move settings outside component
+const ANIMATION_SETTINGS = {
+  particles: {
+    length: 500,
+    duration: 2,
+    velocity: 100,
+    effect: -0.75,
+    size: 30,
+  },
+  rocket: {
+    size: 15,
+    speed: 3,
+    acceleration: 1.01,
+    friction: 0.99,
+    explosionParticles: 30
+  }
+};
+
 const Container = styled.div`
   height: 100vh;
   display: flex;
@@ -89,23 +107,6 @@ function App() {
     "Em là điều tuyệt vời nhất đến với anh",
     "Em có thể làm người yêu anh không?"
   ];
-
-  const settings = {
-    particles: {
-      length: 500,
-      duration: 2,
-      velocity: 100,
-      effect: -0.75,
-      size: 30,
-    },
-    rocket: {
-      size: 15,
-      speed: 3,
-      acceleration: 1.01,
-      friction: 0.99,
-      explosionParticles: 30
-    }
-  };
 
   const particlesInit = useCallback(async (engine) => {
     await loadSlim(engine);
@@ -202,8 +203,8 @@ function App() {
           this.position.y = y;
           this.velocity.x = dx;
           this.velocity.y = dy;
-          this.acceleration.x = dx * settings.particles.effect;
-          this.acceleration.y = dy * settings.particles.effect;
+          this.acceleration.x = dx * ANIMATION_SETTINGS.particles.effect;
+          this.acceleration.y = dy * ANIMATION_SETTINGS.particles.effect;
           this.age = 0;
         }
 
@@ -219,8 +220,8 @@ function App() {
           function ease(t) {
             return (--t) * t * t + 1;
           }
-          const size = image.width * ease(this.age / settings.particles.duration);
-          context.globalAlpha = 1 - this.age / settings.particles.duration;
+          const size = image.width * ease(this.age / ANIMATION_SETTINGS.particles.duration);
+          context.globalAlpha = 1 - this.age / ANIMATION_SETTINGS.particles.duration;
           context.drawImage(image, this.position.x - size / 2, this.position.y - size / 2, size, size);
         }
       }
@@ -231,7 +232,7 @@ function App() {
           this.particles = new Array(length);
           this.firstActive = 0;
           this.firstFree = 0;
-          this.duration = settings.particles.duration;
+          this.duration = ANIMATION_SETTINGS.particles.duration;
 
           for (let i = 0; i < this.particles.length; i++) {
             this.particles[i] = new Particle();
@@ -297,13 +298,13 @@ function App() {
       const image = (() => {
         const canvas = document.createElement('canvas');
         const context = canvas.getContext('2d');
-        canvas.width = settings.particles.size;
-        canvas.height = settings.particles.size;
+        canvas.width = ANIMATION_SETTINGS.particles.size;
+        canvas.height = ANIMATION_SETTINGS.particles.size;
 
         function to(t) {
           const point = pointOnHeart(t);
-          point.x = settings.particles.size / 2 + point.x * settings.particles.size / 350;
-          point.y = settings.particles.size / 2 - point.y * settings.particles.size / 350;
+          point.x = ANIMATION_SETTINGS.particles.size / 2 + point.x * ANIMATION_SETTINGS.particles.size / 350;
+          point.y = ANIMATION_SETTINGS.particles.size / 2 - point.y * ANIMATION_SETTINGS.particles.size / 350;
           return point;
         }
 
@@ -338,7 +339,7 @@ function App() {
       }
 
       function drawRocket(x, y) {
-        const heartSize = settings.rocket.size;
+        const heartSize = ANIMATION_SETTINGS.rocket.size;
         
         // Draw heart shape for rocket
         context.fillStyle = '#ff69b4';
@@ -402,8 +403,8 @@ function App() {
 
         // When explosion is complete, start heart animation
         if (explosionParticles.length === 0 && !isRocketPhase) {
-          particles = new ParticlePool(settings.particles.length);
-          particleRate = settings.particles.length / settings.particles.duration;
+          particles = new ParticlePool(ANIMATION_SETTINGS.particles.length);
+          particleRate = ANIMATION_SETTINGS.particles.length / ANIMATION_SETTINGS.particles.duration;
           time = new Date().getTime() / 1000;
         }
       }
@@ -420,14 +421,14 @@ function App() {
       }
 
       function updateRocket() {
-        rocketVelocity *= settings.rocket.acceleration;
+        rocketVelocity *= ANIMATION_SETTINGS.rocket.acceleration;
         rocketY -= rocketVelocity;
-        rocketVelocity *= settings.rocket.friction;
+        rocketVelocity *= ANIMATION_SETTINGS.rocket.friction;
 
         if (rocketY <= canvas.height * 0.5) {
           isRocketPhase = false;
           // Create explosion particles
-          for (let i = 0; i < settings.rocket.explosionParticles; i++) {
+          for (let i = 0; i < ANIMATION_SETTINGS.rocket.explosionParticles; i++) {
             explosionParticles.push(createExplosionParticle(canvas.width / 2, rocketY));
           }
         }
@@ -451,7 +452,7 @@ function App() {
           const amount = particleRate * deltaTime;
           for (let i = 0; i < amount; i++) {
             const pos = pointOnHeart(Math.PI - 2 * Math.PI * Math.random());
-            const dir = pos.clone().length(settings.particles.velocity);
+            const dir = pos.clone().length(ANIMATION_SETTINGS.particles.velocity);
             particles.add(canvas.width / 2 + pos.x, canvas.height / 2 - pos.y, dir.x, -dir.y);
           }
 
@@ -464,7 +465,7 @@ function App() {
         canvas.width = canvas.clientWidth;
         canvas.height = canvas.clientHeight;
         rocketY = canvas.height;
-        rocketVelocity = settings.rocket.speed;
+        rocketVelocity = ANIMATION_SETTINGS.rocket.speed;
       }
 
       window.addEventListener('resize', onResize);
